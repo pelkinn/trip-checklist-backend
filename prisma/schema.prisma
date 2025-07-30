@@ -18,6 +18,6 @@ model TripTemplate {
   id        Int      @id @default(autoincrement())
   type      String
   days      Int
-  items     String // JSON string with items
+  items     String[] @default([])
   createdAt DateTime @default(now())
 }
