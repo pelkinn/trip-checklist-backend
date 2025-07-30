@@ -14,10 +14,57 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model TripTemplate {
-  id        Int      @id @default(autoincrement())
-  type      String
-  days      Int
-  items     String[] @default([])
-  createdAt DateTime @default(now())
+model TripType {
+  id         Int         @id @default(autoincrement())
+  name       String
+  checklists Checklist[]
+}
+
+model Duration {
+  id         Int         @id @default(autoincrement())
+  days       Int // 1, 3, 7
+  label      String // "1 день", "3 дня", "Неделя"
+  checklists Checklist[]
+}
+
+model Checklist {
+  id         Int             @id @default(autoincrement())
+  tripTypeId Int
+  durationId Int
+  tripType   TripType        @relation(fields: [tripTypeId], references: [id])
+  duration   Duration        @relation(fields: [durationId], references: [id])
+  items      ChecklistItem[]
+  userLists  UserChecklist[]
+}
+
+model Item {
+  id                Int                 @id @default(autoincrement())
+  name              String
+  checklistItems    ChecklistItem[]
+  UserChecklistItem UserChecklistItem[]
+}
+
+model ChecklistItem {
+  id          Int       @id @default(autoincrement())
+  checklistId Int
+  itemId      Int
+  checklist   Checklist @relation(fields: [checklistId], references: [id])
+  item        Item      @relation(fields: [itemId], references: [id])
+}
+
+model UserChecklist {
+  id          Int                 @id @default(autoincrement())
+  checklistId Int
+  checklist   Checklist           @relation(fields: [checklistId], references: [id])
+  items       UserChecklistItem[]
+}
+
+model UserChecklistItem {
+  id              Int           @id @default(autoincrement())
+  userChecklistId Int
+  itemId          Int? // либо выбранный из базы
+  customName      String? // либо пользовательская вещь
+  isChecked       Boolean       @default(false)
+  userChecklist   UserChecklist @relation(fields: [userChecklistId], references: [id])
+  item            Item?         @relation(fields: [itemId], references: [id])
 }
